@@ -1,0 +1,9 @@
+llvm
+program
+.DS_Store
+ASTExperiment/.DS_Store
+CompilationDatabase/
+compile_commands.json
+BrewClang/main.dSYM
+BrewClang/main
+SampleCPlusPlus.o
