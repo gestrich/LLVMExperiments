@@ -3,11 +3,6 @@
 set -e
 set -u
 
-# Next Steps:
-#   Create Xcode toolchain for brew installation
-#   Clone vanilla LLVM
-
-
 #####################
 # BREW LLVM
 #####################
@@ -293,94 +288,6 @@ function appleLLVMCreateToolChain() {
   cd "$buildPath/tools/xcode-toolchain"
   sudo make install-xcode-toolchain
 }
-
-
-
-
-
-
-
-
-#####################
-# Older Parts
-#####################
-
-function build(){
-  #clang++ main2.cpp -o program -std=c++17 -I /opt/homebrew/cellar/llvm/17.0.6/include $($CLANG_BIN_PATH/llvm-config --ldflags --libs all --system-libs) -lclangsema -lclanganalysis -lclangrewritefrontend -lclangedit -lclangparse -lclangfrontend -lclangbasic -lclangdriver -lclangast -lclangastmatchers -lclanglex -lpthread -lncurses -lclang-cpp
-  clang++ ASTExperiment/ASTExperiment/main.cpp -o program -std=c++17 -I /Users/bill/Library/Developer/Toolchains/LLVM18.0.0git.xctoolchain/usr/include $(/Users/bill/Library/Developer/Toolchains/LLVM18.0.0git.xctoolchain/usr/bin/llvm-config --ldflags --libs all --system-libs) -lclangsema -lclanganalysis -lclangrewritefrontend -lclangedit -lclangparse -lclangfrontend -lclangbasic -lclangdriver -lclangast -lclangastmatchers -lclanglex -lpthread -lncurses -lclang-cpp
-}
-
-function run(){
-  build
-  ./program
-}
-
-function buildAppleoldAppleLLVMBuild1() {
-  git clone --depth=1 https://github.com/apple/llvm-project.git
-  cd llvm-project
-  mkdir build
-  cd build
-  cmake -DLLVM_ENABLE_PROJECTS=clang \
-    -DCMAKE_BUILD_TYPE=Release 
-    -DLLVM_CREATE_XCODE_TOOLCHAIN=ON \
-    -G "Unix Makefiles" \
-    ../llvm 
-  make -j4
-}
-
-function buildAppleoldAppleLLVMBuild2() {
-  cd ~/Downloads/llvm-project
-  rm -rf build2
-  mkdir build2
-  cd build2
-  cmake -G "Unix Makefiles" \
-    -DCMAKE_OSX_ARCHITECTURES="armv7;armv7s;arm64" \
-    -DCMAKE_TOOLCHAIN_FILE=../LLVM/cmake/platforms/iOS.cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_BUILD_RUNTIME=Off \ 
-    -DLLVM_INCLUDE_TESTS=Off \ 
-    -DLLVM_INCLUDE_EXAMPLES=Off \ 
-    -DLLVM_ENABLE_BACKTRACES=Off \ 
-    -DLLVM_TARGETS_TO_BUILD="ARM;AArch64" \
-    -DLLVM_TARGET_ARCH=ARM \ 
-    ../LLVM
-  make -j4
-  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_APPEND_VC_REV=on -DLLVM_CREATE_XCODE_TOOLCHAIN=on -DCMAKE_INSTALL_PREFIX=~/Library/Developer/ ../LLVM
-}
-
-function buildAppleoldAppleLLVMBuild3() {
-  cd ~/Downloads/llvm-project
-  rm -rf build3
-  mkdir build3
-  cd build3
-  cmake -G "Unix Makefiles" \
-    -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_CREATE_XCODE_TOOLCHAIN=ON \
-    ../llvm 
-  #cmake -G "Unix Makefiles" -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_OSX_ARCHITECTURES="armv7;armv7s;arm64" -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=Off -DLLVM_INCLUDE_EXAMPLES=Off -DLLVM_ENABLE_BACKTRACES=Off -DLLVM_CREATE_XCODE_TOOLCHAIN=on ../LLVM
-  make -j4
-}
-
-function buildAppleoldAppleLLVMBuild4() {
-  cd ~/Downloads/llvm-project
-  rm -rf build4
-  mkdir build4
-  cd build4
-  cmake -G "Unix Makefiles" \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_INSTALL_PREFIX=~/Library/Developer/ \
-    -DLLVM_APPEND_VC_REV=on \
-    -DLLVM_CREATE_XCODE_TOOLCHAIN=on \
-    -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
-    ../LLVM
-  make -j4
-  appleLLVMCreateToolChain .
-}
-
-
-
-
 
 # Check if the function exists
   if [ $# -gt 0 ]; then 
