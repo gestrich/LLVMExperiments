@@ -21,8 +21,12 @@ function brewLLVMUninstall() {
   brew uninstall llvm@17
 }
 
+function brewLLVMClangObjCHelloWorld() {
+  cd SampleIOSProject
+  ../generate-compilation-db.sh xcodebuild build -project SampleIOSProject.xcodeproj -scheme SampleIOSProject -destination 'generic/platform=iOS'
+}
 # Demonstrates creating a program that links against LLVM tools
-function brewLLVMClangHelloWorld() {
+function brewLLVMClangCPlusPlusHelloWorld() {
 
   executableName="program"
   rm -f "$executableName"
@@ -62,16 +66,23 @@ function brewLLVMClangHelloWorld() {
 }
 
 function brewLLVMCreateSampleCompilationDatabase() {
-    compilationDatabasePath="/Users/bill/dev/personal/examples/apple/AST/CompilationDatabase"
+
+    compilationDatabasePath="CompilationDatabase"
+    if [[ -e $compilationDatabasePath ]]; then 
+      rm -rf "$compilationDatabasePath"
+    fi
+
+    mkdir "$compilationDatabasePath"
+    
     commands_path="compile_commands.json"
-    rm -rf "$compilationDatabasePath"
     rm -rf "$commands_path"
     
     # Add the -v flag if failures are found in the compilation database but not when building directly
     # You can then compare the resuling flags for differences (extra flags get added to the resulting clang-17 commands)
     # The -resource-dir flag was not needed when build C++ usually, but is to produce the right compilation commands.
-    ${binPath}/clang++ -I "/opt/homebrew/opt/llvm/include" SampleCPlusPlusProject/sample.cpp -o SampleCPlusPlus.o -gen-cdb-fragment-path "$compilationDatabasePath" -resource-dir /opt/homebrew/Cellar/llvm/17.0.6/lib/clang/17
     
+    ${binPath}/clang++ -I "/opt/homebrew/opt/llvm/include" SampleCPlusPlusProject/sample.cpp -o SampleCPlusPlus.o -gen-cdb-fragment-path "$compilationDatabasePath" -resource-dir /opt/homebrew/Cellar/llvm/17.0.6/lib/clang/17
+
     local -a files=$(ls ${compilationDatabasePath}/*.json)
 
     for file in "$@"; do
