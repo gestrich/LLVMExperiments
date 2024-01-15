@@ -7,3 +7,5 @@ compile_commands.json
 BrewClang/main.dSYM
 BrewClang/main
 SampleCPlusPlus.o
+SampleIOSProject/SampleIOSProject.xcodeproj/project.xcworkspace/xcuserdata/bill.xcuserdatad/UserInterfaceState.xcuserstate
+SampleIOSProject/build
