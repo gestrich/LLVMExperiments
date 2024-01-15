@@ -18,8 +18,14 @@ function helloWorld() {
 
   flags="$($binPath/llvm-config --ldflags --libs all --system-libs)"
 
+  # -stdlib=libstdc++
+  #   To use the system C++ but gives error
+  #   fatal error: 'iostream' file not found
   "${binPath}"/clang++ BrewClang/main.cpp \
-    -o $executableName -std=c++17 \
+    -o $executableName \
+    -stdlib=libc++ \
+    -std=c++17 \
+    -v \
     -I "$includePath" \
     $flags \
     -lclangsema \
@@ -83,7 +89,7 @@ function appleLLVMBuild6() {
 
 #The C++ libraries are not being build
 #Adding libcxx to LLVM_ENABLE_RUNTIMES
-#When done, try to find the "c++" binary in the toolchain and in the build directory
+#After this, I was getting errors finding C macro implementations
 function appleLLVMBuild7() {
   apple_llvm_build_folder="/Users/bill/dev/personal/examples/apple/llvm-build7"
   apple_cmake_path="$apple_llvm_repo_path/clang/cmake/caches/Apple-stage1.cmake"
@@ -106,6 +112,34 @@ function appleLLVMBuild7() {
   make -j4
   appleLLVMCreateToolChain .
 }
+
+# Removed libc from the list of DLLVM_ENABLE_RUNTIMES
+function appleLLVMBuild8() {
+  apple_llvm_build_folder="/Users/bill/dev/personal/examples/apple/llvm-build8"
+  apple_cmake_path="$apple_llvm_repo_path/clang/cmake/caches/Apple-stage1.cmake"
+
+  cd "$apple_llvm_repo_path"
+  rm -rf "$apple_llvm_build_folder"
+  mkdir "$apple_llvm_build_folder"
+  cd "$apple_llvm_build_folder"
+  
+  cmake -G "Unix Makefiles" \
+    -C "$apple_cmake_path" \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_INSTALL_PREFIX=~/Library/Developer/ \
+    -DLLVM_APPEND_VC_REV=on \
+    -DLLVM_CREATE_XCODE_TOOLCHAIN=on \
+    -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt;" \
+    -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64" \
+    -DDARWIN_ios_ARCHS=AArch64 -DCOMPILER_RT_ENABLE_IOS=On \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+    "$apple_llvm_repo_path/llvm"
+  make -j4
+  appleLLVMCreateToolChain .
+}
+
+
+
 
 function appleLLVMCreateToolChain() {
   buildPath="$1"
